@@ -1,0 +1,16 @@
+# Debian rather than Alpine: sharp ships prebuilt binaries for glibc, so there is
+# nothing to compile. The English model is an npm dependency, so nothing is downloaded
+# at run time and the service works on a locked-down server.
+FROM node:20-slim
+WORKDIR /app
+
+COPY ocr-service/package.json ocr-service/package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+COPY ocr-service/src ./src
+
+ENV NODE_ENV=production
+ENV PORT=4100
+EXPOSE 4100
+USER node
+CMD ["node", "src/index.js"]
